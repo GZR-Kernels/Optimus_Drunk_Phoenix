@@ -1528,6 +1528,8 @@ endif
 
 source "lib/Kconfig"
 
+source "techpack/Kconfig"
+
 config HWCONF_MANAGER
        bool "Hardware configuration and monitor information"
        default y
