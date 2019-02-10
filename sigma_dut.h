@@ -220,6 +220,20 @@ struct sigma_stream {
 
 #endif /* CONFIG_TRAFFIC_AGENT */
 
+/* extended scheduling test */
+enum sigma_ese_type {
+	ESE_CBAP,
+	ESE_SP,
+};
+
+struct sigma_ese_alloc {
+	unsigned int percent_bi;
+	enum sigma_ese_type type;
+	unsigned int src_aid, dst_aid;
+};
+
+#define ESE_BCAST_AID	255
+#define MAX_ESE_ALLOCS	4
 
 #define NUM_AP_AC 4
 #define AP_AC_BE 0
@@ -264,6 +278,13 @@ struct nl80211_ctx {
 	size_t sock_buf_size;
 };
 #endif /* NL80211_SUPPORT */
+
+/* hardcoded long WSC IE values to force fragmentation */
+#define WPS_LONG_DEVICE_NAME	"Qti1234511adtest1234567890123456"
+#define WPS_LONG_MANUFACTURER	"Qti1234511adQti1234511adQti1234511adQti1234511adQti1234511ad"
+#define WPS_LONG_MODEL_NAME	"Qti1234511adtest1234567890123456"
+#define WPS_LONG_MODEL_NUMBER	"11111111111111111111111111111111"
+#define WPS_LONG_SERIAL_NUMBER	"22222222222222222222222222222222"
 
 struct sigma_dut {
 	int s; /* server TCP socket */
@@ -354,6 +375,7 @@ struct sigma_dut {
 		AP_11na,
 		AP_11ng,
 		AP_11ac,
+		AP_11ad,
 		AP_inval
 	} ap_mode;
 	int ap_channel;
@@ -487,10 +509,12 @@ struct sigma_dut {
 	int ap_gas_cb_delay;
 	int ap_proxy_arp;
 	int ap2_proxy_arp;
+	int ap2_osu;
 	int ap_l2tif;
 	int ap_anqpserver;
 	int ap_anqpserver_on;
 	int ap_osu_provider_list;
+	int ap_osu_provider_nai_list;
 	int ap_qos_map_set;
 	int ap_bss_load;
 	char ap_osu_server_uri[10][256];
@@ -602,7 +626,11 @@ struct sigma_dut {
 		PPDU_TB,
 	} ap_he_ppdu;
 
+	struct sigma_ese_alloc ap_ese_allocs[MAX_ESE_ALLOCS];
+	int ap_num_ese_allocs;
+
 	const char *hostapd_debug_log;
+	const char *wpa_supplicant_debug_log;
 
 #ifdef CONFIG_TRAFFIC_AGENT
 	/* Traffic Agent */
@@ -694,8 +722,25 @@ struct sigma_dut {
 		DEVROLE_UNKNOWN = 0,
 		DEVROLE_STA,
 		DEVROLE_PCP,
-		DEVROLE_STA_CFON
+		DEVROLE_STA_CFON,
+		DEVROLE_AP,
 	} dev_role;
+
+	enum wps_band {
+		WPS_BAND_NON_60G = 0,
+		WPS_BAND_60G,
+	} band;
+
+	int wps_disable; /* Used for 60G to disable PCP from sending WPS IE */
+	int wsc_fragment; /* simulate WSC IE fragmentation */
+	enum {
+		/* no change */
+		FORCE_RSN_IE_NONE = 0,
+		/* if exists, remove and clear privacy bit */
+		FORCE_RSN_IE_REMOVE,
+		/* if not exists, add and set privacy bit */
+		FORCE_RSN_IE_ADD,
+	} force_rsn_ie; /* override RSN IE in association request */
 
 	const char *version;
 	int no_ip_addr_set;
@@ -780,6 +825,8 @@ void send_resp(struct sigma_dut *dut, struct sigma_conn *conn,
 	       enum sigma_status status, const char *buf);
 
 const char * get_param(struct sigma_cmd *cmd, const char *name);
+const char * get_param_indexed(struct sigma_cmd *cmd, const char *name,
+			       int index);
 
 int sigma_dut_reg_cmd(const char *cmd,
 		      int (*validate)(struct sigma_cmd *cmd),
@@ -867,6 +914,13 @@ int hwaddr_aton(const char *txt, unsigned char *addr);
 int set_ipv4_addr(struct sigma_dut *dut, const char *ifname,
 		  const char *ip, const char *mask);
 int set_ipv4_gw(struct sigma_dut *dut, const char *gw);
+int send_addba_60g(struct sigma_dut *dut, struct sigma_conn *conn,
+		   struct sigma_cmd *cmd, const char *param);
+int wil6210_set_ese(struct sigma_dut *dut, int count,
+		    struct sigma_ese_alloc *allocs);
+int sta_extract_60g_ese(struct sigma_dut *dut, struct sigma_cmd *cmd,
+			struct sigma_ese_alloc *allocs, int *allocs_size);
+int wil6210_set_force_mcs(struct sigma_dut *dut, int force, int mcs);
 
 /* p2p.c */
 int p2p_cmd_sta_get_parameter(struct sigma_dut *dut, struct sigma_conn *conn,
@@ -878,12 +932,16 @@ void stop_dhcp(struct sigma_dut *dut, const char *group_ifname, int go);
 int p2p_discover_peer(struct sigma_dut *dut, const char *ifname,
 		      const char *peer, int full);
 
+/* basic.c */
+void get_ver(const char *cmd, char *buf, size_t buflen);
+
 /* utils.c */
 enum sigma_program sigma_program_to_enum(const char *prog);
 int parse_hexstr(const char *hex, unsigned char *buf, size_t buflen);
 int parse_mac_address(struct sigma_dut *dut, const char *arg,
 		      unsigned char *addr);
-unsigned int channel_to_freq(unsigned int channel);
+int is_60g_sigma_dut(struct sigma_dut *dut);
+unsigned int channel_to_freq(struct sigma_dut *dut, unsigned int channel);
 unsigned int freq_to_channel(unsigned int freq);
 int is_ipv6_addr(const char *str);
 void convert_mac_addr_to_ipv6_lladdr(u8 *mac_addr, char *ipv6_buf,
@@ -895,6 +953,9 @@ size_t strlcpy(char *dest, const char *src, size_t siz);
 size_t strlcat(char *dst, const char *str, size_t size);
 #endif /* ANDROID */
 void hex_dump(struct sigma_dut *dut, u8 *data, size_t len);
+int get_wps_pin_from_mac(struct sigma_dut *dut, const char *macaddr,
+			 char *pin, size_t len);
+void str_remove_chars(char *str, char ch);
 
 
 /* uapsd_stream.c */

@@ -288,6 +288,23 @@ const char * get_param(struct sigma_cmd *cmd, const char *name)
 }
 
 
+const char * get_param_indexed(struct sigma_cmd *cmd, const char *name,
+			       int index)
+{
+	int i, j;
+
+	for (i = 0, j = 0; i < cmd->count; i++) {
+		if (strcasecmp(name, cmd->params[i]) == 0) {
+			j++;
+			if (j > index)
+				return cmd->values[i];
+		}
+	}
+
+	return NULL;
+}
+
+
 static void process_cmd(struct sigma_dut *dut, struct sigma_conn *conn,
 			char *buf)
 {
@@ -295,7 +312,7 @@ static void process_cmd(struct sigma_dut *dut, struct sigma_conn *conn,
 	struct sigma_cmd c;
 	char *cmd, *pos, *pos2;
 	int len;
-	char txt[200];
+	char txt[300];
 	int res;
 
 	while (*buf == '\r' || *buf == '\n' || *buf == '\t' || *buf == ' ')
@@ -780,7 +797,7 @@ int main(int argc, char *argv[])
 
 	for (;;) {
 		c = getopt(argc, argv,
-			   "aAb:Bc:C:dDE:e:fF:gGhH:j:i:Ik:l:L:m:M:nN:o:O:p:P:qQr:R:s:S:tT:uv:VWw:x:y:z:");
+			   "aAb:Bc:C:dDE:e:fF:gGhH:j:J:i:Ik:l:L:m:M:nN:o:O:p:P:qQr:R:s:S:tT:uv:VWw:x:y:z:");
 		if (c < 0)
 			break;
 		switch (c) {
@@ -835,6 +852,9 @@ int main(int argc, char *argv[])
 			break;
 		case 'j':
 			sigma_dut.hostapd_ifname = optarg;
+			break;
+		case 'J':
+			sigma_dut.wpa_supplicant_debug_log = optarg;
 			break;
 		case 'l':
 			local_cmd = optarg;
@@ -981,6 +1001,7 @@ int main(int argc, char *argv[])
 			       "       [-H <hostapd log file>] \\\n"
 			       "       [-F <hostapd binary path>] \\\n"
 			       "       [-j <hostapd ifname>] \\\n"
+			       "       [-J <wpa_supplicant debug log>] \\\n"
 			       "       [-C <certificate path>] \\\n"
 			       "       [-v <version string>] \\\n"
 			       "       [-L <summary log>] \\\n"

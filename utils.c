@@ -215,8 +215,23 @@ fail:
 }
 
 
-unsigned int channel_to_freq(unsigned int channel)
+int is_60g_sigma_dut(struct sigma_dut *dut)
 {
+	return dut->program == PROGRAM_60GHZ ||
+		(dut->program == PROGRAM_WPS &&
+		 (get_driver_type() == DRIVER_WIL6210));
+}
+
+
+unsigned int channel_to_freq(struct sigma_dut *dut, unsigned int channel)
+{
+	if (is_60g_sigma_dut(dut)) {
+		if (channel >= 1 && channel <= 4)
+			return 58320 + 2160 * channel;
+
+		return 0;
+	}
+
 	if (channel >= 1 && channel <= 13)
 		return 2407 + 5 * channel;
 	if (channel == 14)
@@ -236,6 +251,8 @@ unsigned int freq_to_channel(unsigned int freq)
 		return 14;
 	if (freq >= 5180 && freq <= 5825)
 		return (freq - 5000) / 5;
+	if (freq >= 58320 && freq <= 64800)
+		return (freq - 58320) / 2160;
 	return 0;
 }
 
@@ -544,3 +561,55 @@ void nl80211_deinit(struct sigma_dut *dut, struct nl80211_ctx *ctx)
 }
 
 #endif /* NL80211_SUPPORT */
+
+
+static int get_wps_pin_checksum(int pin)
+{
+	int a = 0;
+
+	while (pin > 0) {
+		a += 3 * (pin % 10);
+		pin = pin / 10;
+		a += (pin % 10);
+		pin = pin / 10;
+	}
+
+	return (10 - (a % 10)) % 10;
+}
+
+
+int get_wps_pin_from_mac(struct sigma_dut *dut, const char *macaddr,
+			 char *pin, size_t len)
+{
+	unsigned char mac[ETH_ALEN];
+	int tmp, checksum;
+
+	if (len < 9)
+		return -1;
+	if (parse_mac_address(dut, macaddr, mac))
+		return -1;
+
+	/*
+	 * get 7 digit PIN from the last 24 bits of MAC
+	 * range 1000000 - 9999999
+	 */
+	tmp = (mac[5] & 0xFF) | ((mac[4] & 0xFF) << 8) |
+	      ((mac[3] & 0xFF) << 16);
+	tmp = (tmp % 9000000) + 1000000;
+	checksum = get_wps_pin_checksum(tmp);
+	snprintf(pin, len, "%07d%01d", tmp, checksum);
+	return 0;
+}
+
+
+void str_remove_chars(char *str, char ch)
+{
+	char *pr = str, *pw = str;
+
+	while (*pr) {
+		*pw = *pr++;
+		if (*pw != ch)
+			pw++;
+	}
+	*pw = '\0';
+}

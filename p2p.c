@@ -102,6 +102,12 @@ void start_dhcp(struct sigma_dut *dut, const char *group_ifname, int go)
 		} else if (access("/system/bin/dhcptool", F_OK) != -1) {
 			snprintf(buf, sizeof(buf), "/system/bin/dhcptool %s",
 				 group_ifname);
+		} else if (access("/vendor/bin/dhcpcd", F_OK) != -1) {
+			snprintf(buf, sizeof(buf), "/vendor/bin/dhcpcd %s",
+				 group_ifname);
+		} else if (access("/vendor/bin/dhcptool", F_OK) != -1) {
+			snprintf(buf, sizeof(buf), "/vendor/bin/dhcptool %s",
+				 group_ifname);
 		} else {
 			sigma_dut_print(dut, DUT_MSG_ERROR,
 					"DHCP client program missing");
@@ -818,7 +824,7 @@ static int cmd_sta_start_autonomous_go(struct sigma_dut *dut,
 				       struct sigma_conn *conn,
 				       struct sigma_cmd *cmd)
 {
-	const char *intf = get_param(cmd, "Interface");
+	const char *intf = get_p2p_ifname(get_param(cmd, "Interface"));
 	const char *oper_chn = get_param(cmd, "OPER_CHN");
 	const char *ssid_param = get_param(cmd, "SSID");
 #ifdef MIRACAST
@@ -1618,10 +1624,17 @@ static int cmd_sta_set_wps_pbc(struct sigma_dut *dut, struct sigma_conn *conn,
 static int cmd_sta_wps_read_pin(struct sigma_dut *dut, struct sigma_conn *conn,
 				struct sigma_cmd *cmd)
 {
-	/* const char *intf = get_param(cmd, "Interface"); */
+	const char *intf = get_param(cmd, "Interface");
 	const char *grpid = get_param(cmd, "GroupID");
-	char *pin = "12345670"; /* TODO: use random PIN */
+	char pin[9], addr[20];
 	char resp[100];
+
+	if (get_wpa_status(intf, "address", addr, sizeof(addr)) < 0 ||
+	    get_wps_pin_from_mac(dut, addr, pin, sizeof(pin)) < 0) {
+		sigma_dut_print(dut, DUT_MSG_DEBUG,
+				"Failed to calculate PIN from MAC, use default");
+		strlcpy(pin, "12345670", sizeof(pin));
+	}
 
 	if (grpid) {
 		char buf[100];
