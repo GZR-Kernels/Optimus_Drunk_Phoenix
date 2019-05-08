@@ -2,7 +2,7 @@
  * Sigma Control API DUT (station/AP)
  * Copyright (c) 2010-2011, Atheros Communications, Inc.
  * Copyright (c) 2011-2017, Qualcomm Atheros, Inc.
- * Copyright (c) 2018, The Linux Foundation
+ * Copyright (c) 2018-2019, The Linux Foundation
  * All Rights Reserved.
  * Licensed under the Clear BSD license. See README for more details.
  */
@@ -112,12 +112,20 @@ void sigma_dut_summary(struct sigma_dut *dut, const char *fmt, ...)
 
 int sigma_dut_reg_cmd(const char *cmd,
 		      int (*validate)(struct sigma_cmd *cmd),
-		      int (*process)(struct sigma_dut *dut,
-				     struct sigma_conn *conn,
-				     struct sigma_cmd *cmd))
+		      enum sigma_cmd_result (*process)(struct sigma_dut *dut,
+						       struct sigma_conn *conn,
+						       struct sigma_cmd *cmd))
 {
 	struct sigma_cmd_handler *h;
 	size_t clen, len;
+
+	for (h = sigma_dut.cmds; h; h = h->next) {
+		if (strcmp(h->cmd, cmd) == 0) {
+			printf("ERROR: Duplicate sigma_dut command registration for '%s'\n",
+			       cmd);
+			return -1;
+		}
+	}
 
 	clen = strlen(cmd);
 	len = sizeof(*h) + clen + 1;
@@ -274,6 +282,7 @@ void send_resp(struct sigma_dut *dut, struct sigma_conn *conn,
 	if (sendmsg(conn->s, &msg, 0) < 0)
 		sigma_dut_print(dut, DUT_MSG_INFO, "sendmsg: %s",
 				strerror(errno));
+	dut->response_sent++;
 }
 
 
@@ -313,7 +322,7 @@ static void process_cmd(struct sigma_dut *dut, struct sigma_conn *conn,
 	char *cmd, *pos, *pos2;
 	int len;
 	char txt[300];
-	int res;
+	enum sigma_cmd_result res;
 
 	while (*buf == '\r' || *buf == '\n' || *buf == '\t' || *buf == ' ')
 		buf++;
@@ -406,15 +415,29 @@ static void process_cmd(struct sigma_dut *dut, struct sigma_conn *conn,
 		goto out;
 	}
 
+	dut->response_sent = 0;
 	send_resp(dut, conn, SIGMA_RUNNING, NULL);
 	sigma_dut_print(dut, DUT_MSG_INFO, "Run command: %s", cmd);
 	res = h->process(dut, conn, &c);
-	if (res == -2)
+	switch (res) {
+	case ERROR_SEND_STATUS:
 		send_resp(dut, conn, SIGMA_ERROR, NULL);
-	else if (res == -1)
+		break;
+	case INVALID_SEND_STATUS:
 		send_resp(dut, conn, SIGMA_INVALID, NULL);
-	else if (res == 1)
+		break;
+	case STATUS_SENT:
+		break;
+	case SUCCESS_SEND_STATUS:
 		send_resp(dut, conn, SIGMA_COMPLETE, NULL);
+		break;
+	}
+
+	if (!conn->waiting_completion && dut->response_sent != 2) {
+		sigma_dut_print(dut, DUT_MSG_ERROR,
+				"ERROR: Unexpected number of status lines sent (%d) for command '%s'",
+				dut->response_sent, cmd);
+	}
 
 out:
 	if (dut->debug_level < DUT_MSG_INFO) {
@@ -728,7 +751,7 @@ static const char * const license1 =
 "\n"
 "Copyright (c) 2010-2011, Atheros Communications, Inc.\n"
 "Copyright (c) 2011-2017, Qualcomm Atheros, Inc.\n"
-"Copyright (c) 2018, The Linux Foundation\n"
+"Copyright (c) 2018-2019, The Linux Foundation\n"
 "All Rights Reserved.\n"
 "Licensed under the Clear BSD license.\n"
 "\n";
@@ -1117,6 +1140,7 @@ int main(int argc, char *argv[])
 	free(sigma_dut.rsne_override);
 	free(sigma_dut.ap_sae_groups);
 	free(sigma_dut.dpp_peer_uri);
+	free(sigma_dut.ap_sae_passwords);
 #ifdef NL80211_SUPPORT
 	nl80211_deinit(&sigma_dut, sigma_dut.nl_ctx);
 #endif /* NL80211_SUPPORT */

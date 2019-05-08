@@ -2,6 +2,7 @@
  * Sigma Control API DUT (station/AP)
  * Copyright (c) 2010-2011, Atheros Communications, Inc.
  * Copyright (c) 2011-2017, Qualcomm Atheros, Inc.
+ * Copyright (c) 2018-2019, The Linux Foundation
  * All Rights Reserved.
  * Licensed under the Clear BSD license. See README for more details.
  */
@@ -47,6 +48,8 @@
 #else
 #define PRINTF_FORMAT(a,b)
 #endif
+
+#define ARRAY_SIZE(a) (sizeof(a) / sizeof((a)[0]))
 
 #ifndef SIGMA_TMPDIR
 #define SIGMA_TMPDIR "/tmp"
@@ -103,10 +106,12 @@ struct sigma_conn {
 	int waiting_completion;
 };
 
-#define SIGMA_DUT_ERROR_CALLER_SEND_STATUS -2
-#define SIGMA_DUT_INVALID_CALLER_SEND_STATUS -1
-#define SIGMA_DUT_SUCCESS_STATUS_SENT 0
-#define SIGMA_DUT_SUCCESS_CALLER_SEND_STATUS 1
+enum sigma_cmd_result {
+	ERROR_SEND_STATUS = -2,
+	INVALID_SEND_STATUS = -1,
+	STATUS_SENT = 0,
+	SUCCESS_SEND_STATUS = 1
+};
 
 struct sigma_cmd_handler {
 	struct sigma_cmd_handler *next;
@@ -115,11 +120,12 @@ struct sigma_cmd_handler {
 	/* process return value:
 	 * -2 = failed, caller will send status,ERROR
 	 * -1 = failed, caller will send status,INVALID
-	 * 0 = success, response already sent
+	 * 0 = response already sent
 	 * 1 = success, caller will send status,COMPLETE
 	 */
-	int (*process)(struct sigma_dut *dut, struct sigma_conn *conn,
-		       struct sigma_cmd *cmd);
+	enum sigma_cmd_result (*process)(struct sigma_dut *dut,
+					 struct sigma_conn *conn,
+					 struct sigma_cmd *cmd);
 };
 
 #define P2P_GRP_ID_LEN 128
@@ -286,11 +292,30 @@ struct nl80211_ctx {
 #define WPS_LONG_MODEL_NUMBER	"11111111111111111111111111111111"
 #define WPS_LONG_SERIAL_NUMBER	"22222222222222222222222222222222"
 
+enum akm_suite_values {
+	AKM_WPA_EAP = 1,
+	AKM_WPA_PSK = 2,
+	AKM_FT_EAP = 3,
+	AKM_FT_PSK = 4,
+	AKM_EAP_SHA256 = 5,
+	AKM_PSK_SHA256 = 6,
+	AKM_SAE = 8,
+	AKM_FT_SAE = 9,
+	AKM_SUITE_B = 12,
+	AKM_FT_SUITE_B = 13,
+	AKM_FILS_SHA256 = 14,
+	AKM_FILS_SHA384 = 15,
+	AKM_FT_FILS_SHA256 = 16,
+	AKM_FT_FILS_SHA384 = 17,
+
+};
+
 struct sigma_dut {
 	int s; /* server TCP socket */
 	int debug_level;
 	int stdout_debug;
 	struct sigma_cmd_handler *cmds;
+	int response_sent;
 
 	/* Default timeout value (seconds) for commands */
 	unsigned int default_timeout;
@@ -360,6 +385,8 @@ struct sigma_dut {
 	int testbed_flag_txsp;
 	int testbed_flag_rxsp;
 	int chwidth;
+
+	unsigned int akm_values;
 
 	/* AP configuration */
 	char ap_ssid[33];
@@ -475,6 +502,7 @@ struct sigma_dut {
 	int sae_reflection;
 	char ap_passphrase[101];
 	char ap_psk[65];
+	char *ap_sae_passwords;
 	char ap_wepkey[27];
 	char ap_radius_ipaddr[20];
 	int ap_radius_port;
@@ -600,6 +628,7 @@ struct sigma_dut {
 	int ap_ul_availcap;
 	int ap_dl_availcap;
 	int ap_akm;
+	unsigned int ap_akm_values;
 	int ap_pmksa;
 	int ap_pmksa_caching;
 	int ap_80plus80;
@@ -733,6 +762,8 @@ struct sigma_dut {
 
 	int wps_disable; /* Used for 60G to disable PCP from sending WPS IE */
 	int wsc_fragment; /* simulate WSC IE fragmentation */
+	int eap_fragment; /* simulate EAP fragmentation */
+	int wps_forced_version; /* Used to force reported WPS version */
 	enum {
 		/* no change */
 		FORCE_RSN_IE_NONE = 0,
@@ -830,9 +861,9 @@ const char * get_param_indexed(struct sigma_cmd *cmd, const char *name,
 
 int sigma_dut_reg_cmd(const char *cmd,
 		      int (*validate)(struct sigma_cmd *cmd),
-		      int (*process)(struct sigma_dut *dut,
-				     struct sigma_conn *conn,
-				     struct sigma_cmd *cmd));
+		      enum sigma_cmd_result (*process)(struct sigma_dut *dut,
+						       struct sigma_conn *conn,
+						       struct sigma_cmd *cmd));
 
 void sigma_dut_register_cmds(void);
 
@@ -900,6 +931,8 @@ void novap_reset(struct sigma_dut *dut, const char *ifname);
 int get_hwaddr(const char *ifname, unsigned char *hwaddr);
 int cmd_ap_config_commit(struct sigma_dut *dut, struct sigma_conn *conn,
 			 struct sigma_cmd *cmd);
+int ap_wps_registration(struct sigma_dut *dut, struct sigma_conn *conn,
+			struct sigma_cmd *cmd);
 
 /* sta.c */
 int set_ps(const char *intf, struct sigma_dut *dut, int enabled);
@@ -908,6 +941,8 @@ void ath_set_cts_width(struct sigma_dut *dut, const char *ifname,
 		       const char *val);
 int ath_set_width(struct sigma_dut *dut, struct sigma_conn *conn,
 		  const char *intf, const char *val);
+int sta_set_60g_abft_len(struct sigma_dut *dut, struct sigma_conn *conn,
+			 int abft_len);
 int wil6210_send_frame_60g(struct sigma_dut *dut, struct sigma_conn *conn,
 			   struct sigma_cmd *cmd);
 int hwaddr_aton(const char *txt, unsigned char *addr);
@@ -957,6 +992,9 @@ int get_wps_pin_from_mac(struct sigma_dut *dut, const char *macaddr,
 			 char *pin, size_t len);
 void str_remove_chars(char *str, char ch);
 
+int get_wps_forced_version(struct sigma_dut *dut, const char *str);
+int base64_encode(const char *src, size_t len, char *out, size_t out_len);
+int random_get_bytes(char *buf, size_t len);
 
 /* uapsd_stream.c */
 void receive_uapsd(struct sigma_stream *s);
