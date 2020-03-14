@@ -1,6 +1,7 @@
 /*
  *
  * Copyright (c) 2018 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2020 XiaoMi, Inc.
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -34,7 +35,7 @@
  * The max duration for which a obj can be allowed to remain in L-state
  * The duration  should be higher than the psoc idle timeout.
  */
-#define LOG_DEL_OBJ_DESTROY_ASSERT_DURATION_SEC 15
+#define LOG_DEL_OBJ_DESTROY_ASSERT_DURATION_SEC 30
 #define LOG_DEL_OBJ_LIST_MAX_COUNT       (3 + 5 + 48 + 4096)
 
 /**
