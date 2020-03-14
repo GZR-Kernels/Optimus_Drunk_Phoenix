@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018, 2019 The Linux Foundation. All rights reserved.
+ * Copyright (C) 2020 XiaoMi, Inc.
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -340,8 +341,6 @@ static void hdd_nud_process_failure_event(struct hdd_adapter *adapter)
 		hdd_nud_capture_stats(adapter, NUD_FAILED);
 		if (hdd_nud_honour_failure(adapter)) {
 			adapter->nud_tracking.curr_state = NUD_FAILED;
-			qdf_sched_work(0, &adapter
-					->nud_tracking.nud_event_work);
 		} else {
 			hdd_nud_set_tracking(adapter, NUD_NONE, false);
 		}
