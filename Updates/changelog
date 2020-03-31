@@ -1,4 +1,3 @@
-* First beta
-* Added Wireguard, Boeffla Wakeblocker,
-Multiple I/O Schedulers and TCP congestion controls
-* No upstream for now
+* Rebased on AOSiP kernel
+* Fixed proximity sensor
+* Made kernel zip smaller
