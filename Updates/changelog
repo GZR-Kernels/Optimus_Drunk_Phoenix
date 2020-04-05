@@ -1,3 +1,2 @@
-* Rebased on AOSiP kernel
-* Fixed proximity sensor
-* Made kernel zip smaller
+* Updated Wireguard to 1.0.20200401
+* Added KLAPSE & Force Fastcharge (Disabled by default)
