@@ -9,7 +9,7 @@ KERNEL_TOOLCHAIN=$ANDROIDDIR/kernel/prebuilts/aarch64-linux-android-4.9/bin/aarc
 ARM32_TOOLCHAIN=$ANDROIDDIR/kernel/prebuilts/arm-linux-androideabi-4.9/bin/arm-linux-androideabi-
 KERNEL_DEFCONFIG=phoenix_defconfig
 ANY_KERNEL3_DIR=$KERNEL_DIR/AnyKernel3/
-FINAL_KERNEL_ZIP=Optimus_Drunk_Phoenix_b2.zip
+FINAL_KERNEL_ZIP=Optimus_Drunk_Phoenix_b3.zip
 # Speed up build process
 MAKE="./makeparallel"
 
