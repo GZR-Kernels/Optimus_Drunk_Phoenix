@@ -1,2 +1,4 @@
-* Updated Wireguard to 1.0.20200401
-* Added KLAPSE & Force Fastcharge (Disabled by default)
+* Updated Wireguard to 1.0.20200413
+* Removed Force Fast Charge
+* Add ExFAT & BBR TCP
+* Built with Clang 10.0.6

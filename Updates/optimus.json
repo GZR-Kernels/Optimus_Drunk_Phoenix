@@ -1,11 +1,11 @@
  {
   "kernel": {
     "name": "Optimus Drunk Phoenix",
-    "version": "b3",
-    "link": "https://github.com/GZR-Kernels/Optimus_Drunk_Beryllium/releases/download/b3/Optimus_Drunk_Phoenix_b3.zip",
+    "version": "b4",
+    "link": "https://github.com/GZR-Kernels/Optimus_Drunk_Beryllium/releases/download/b4/Optimus_Drunk_Phoenix_b4.zip",
     "changelog_url": "https://raw.githubusercontent.com/GZR-Kernels/Optimus_Drunk_Phoenix/10.0/Updates/changelog",
-    "date": "2020-04-05",
-    "sha1": "d3424d53350c62dae17c0ac26159c4d29309deb5"
+    "date": "2020-04-17",
+    "sha1": "2832a8f05ad79a092cc448b2df0e815a2fecc460"
   },
   "support": {
     "link": "https://forum.xda-developers.com/poco-x2/development/kernel-optimus-drunk-kernel-b1-t4074499"
