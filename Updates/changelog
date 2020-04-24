@@ -1,3 +1,2 @@
-* Rebased on Arter kernel bringup
-* Updated to 4.14.176
-* All features are still here
+* Updated to 4.14.177
+* Added some powersaving features
