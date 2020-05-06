@@ -1,3 +1,4 @@
-* Rebased on LA.UM.8.9.r1-08700-SM6xx.0 CAF tag
-* Bbr is now default TCP
-* Updated Wireguard to 1.0.20200429
+* Updated to 4.14.179
+* Added script file to enable Zram at boot
+* Reduced swappines to 30
+* Enabled lz4 compression for Zram
