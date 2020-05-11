@@ -1,4 +1,1 @@
-* Updated to 4.14.179
-* Added script file to enable Zram at boot
-* Reduced swappines to 30
-* Enabled lz4 compression for Zram
+* Updated to 4.14.180
