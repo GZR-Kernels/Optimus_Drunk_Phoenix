@@ -158,7 +158,7 @@ static void set_dload_mode(int on)
 }
 
 #ifdef CONFIG_QCOM_DLOAD_MODE
-static bool get_dload_mode(void)
+static bool __maybe_unused get_dload_mode(void)
 {
 	return dload_mode_enabled;
 }
