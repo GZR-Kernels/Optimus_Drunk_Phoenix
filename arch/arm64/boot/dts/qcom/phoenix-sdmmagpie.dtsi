@@ -228,6 +228,7 @@
 
 
 &pm6150_qg {
+	qcom,cl-disable = <1>;
 	qcom,battery-data = <&mtp_batterydata>;
 	qcom,vbatt-cutoff-mv = <3400>;
 	qcom,vbatt-low-mv = <3500>;
