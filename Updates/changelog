@@ -1,1 +1,6 @@
-* Updated to 4.14.184
+* Updated to 4.14.185
+* Updated proton clang to 20200620
+* Updated wireguard to 1.0.20200611
+* Fixed white screen issue on some Redmi K30's
+* Block some wakelocks
+* Optimisations for thermals, sched/walt and kgsl
