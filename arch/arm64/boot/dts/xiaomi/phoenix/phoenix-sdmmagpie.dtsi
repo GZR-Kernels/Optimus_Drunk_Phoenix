@@ -22,6 +22,7 @@
 #include "phoenix-sdmmagpie-fingerprint.dtsi"
 #include "phoenix-sdmmagpie-leds.dtsi"
 #include "phoenix-sdmmagpie-pinctrl.dtsi"
+#include "phoenix-sdmmagpie-thermal.dtsi"
 #include "phoenix-sdmmagpie-touchscreen.dtsi"
 #include "phoenix-sdmmagpie-usb.dtsi"
 
