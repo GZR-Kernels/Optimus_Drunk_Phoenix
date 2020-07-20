@@ -13,6 +13,11 @@ export KBUILD_COMPILER_STRING="$($KERNELDIR/prebuilts/proton-clang/bin/clang --v
 # Speed up build process
 MAKE="./makeparallel"
 
+# Clone some stuff
+echo "**** Cloning ****"
+rm -rf $PWD/scripts/ufdt/libufdt
+git clone https://android.googlesource.com/platform/system/libufdt $PWD/scripts/ufdt/libufdt
+
 BUILD_START=$(date +"%s")
 blue='\033[0;34m'
 cyan='\033[0;36m'
@@ -43,6 +48,10 @@ make -j$(nproc --all) O=out \
 echo "**** Verify Image.gz-dtb ****"
 ls $PWD/out/arch/arm64/boot/Image.gz-dtb
 
+echo "**** Build dtbo.img ****"
+python2 $PWD/scripts/ufdt/libufdt/utils/src/mkdtboimg.py \
+create $PWD/out/arch/arm64/boot/dtbo.img --page_size=4096 $PWD/out/arch/arm64/boot/dts/xiaomi/phoenix-sdmmagpie-overlay.dtbo
+
 #Anykernel 2 time!!
 echo "**** Verifying AnyKernel3 Directory ****"
 ls $ANYKERNEL3_DIR
@@ -50,8 +59,9 @@ echo "**** Removing leftovers ****"
 rm -rf $ANYKERNEL3_DIR/Image.gz-dtb
 rm -rf $ANYKERNEL3_DIR/$FINAL_KERNEL_ZIP
 
-echo "**** Copying Image.gz-dtb ****"
+echo "**** Copying Image.gz-dtb & dtbo.img ****"
 cp $PWD/out/arch/arm64/boot/Image.gz-dtb $ANYKERNEL3_DIR/
+cp $PWD/out/arch/arm64/boot/dtbo.img $ANYKERNEL3_DIR/
 
 echo "**** Time to zip up! ****"
 cd $ANYKERNEL3_DIR/
@@ -62,6 +72,7 @@ echo "**** Done, here is your sha1 ****"
 cd ..
 rm -rf $ANYKERNEL3_DIR/$FINAL_KERNEL_ZIP
 rm -rf $ANYKERNEL3_DIR/Image.gz-dtb
+rm -rf $ANYKERNEL3_DIR/dtbo.img
 rm -rf out/
 
 BUILD_END=$(date +"%s")
