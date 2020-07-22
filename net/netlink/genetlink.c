@@ -1012,7 +1012,7 @@ static int __net_init genl_pernet_init(struct net *net)
 		.input		= genl_rcv,
 		.flags		= NL_CFG_F_NONROOT_RECV,
 		.bind		= genl_bind,
-		.unbind		= genl_unbind,
+		.unbind	= genl_unbind,
 	};
 
 	/* we'll bump the group number right afterwards */
