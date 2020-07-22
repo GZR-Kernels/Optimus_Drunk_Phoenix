@@ -1,6 +1,3 @@
-* Updated to 4.14.188
-* Readded CPU input boost & Devfreq boost
-* CPU Input Boost can be configured in FK Manager
-* Also added CPUSet Assist & Schedtune Assist
-* Added Spectrum support, download the Spectrum app from the play store
-* Added blu_schedutil governor (is used in battery spectrum profile)
+* Rebased on sm6150/new crdroid kernel
+* Updated to 4.14.189
+* Boots on all roms again
