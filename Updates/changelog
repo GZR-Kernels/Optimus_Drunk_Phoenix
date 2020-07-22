@@ -1,6 +1,4 @@
-* Updated to 4.14.188
-* Readded CPU input boost & Devfreq boost
-* CPU Input Boost can be configured in FK Manager
-* Also added CPUSet Assist & Schedtune Assist
-* Added Spectrum support, download the Spectrum app from the play store
-* Added blu_schedutil governor (is used in battery spectrum profile)
+* Updated to 4.14.189
+* Removed Schedtune & CPUSets Assist
+* Updated wireguard to 1.0.20200712
+* Enable KCAL Control
