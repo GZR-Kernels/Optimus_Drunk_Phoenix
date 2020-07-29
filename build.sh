@@ -5,11 +5,13 @@
 ## Copy this script inside the kernel directory
 KERNEL_DEFCONFIG=phoenix_defconfig
 ANYKERNEL3_DIR=$PWD/AnyKernel3/
-FINAL_KERNEL_ZIP=Optimus_Drunk_Phoenix_v10.15.zip
-export PATH="$KERNELDIR/prebuilts/proton-clang/bin:${PATH}"
+FINAL_KERNEL_ZIP=Optimus_Drunk_Phoenix_v10.18.zip
+export PATH="$KERNELDIR/prebuilts/clang-6607189/bin:${PATH}"
+#export CROSS_COMPILE=$KERNELDIR/prebuilts/aarch64-linux-gnu/bin/aarch64-linux-gnu-
+export CROSS_COMPILE_ARM32=$KERNELDIR/prebuilts/arm-linux-gnueabi/bin/arm-linux-gnueabi-
 export ARCH=arm64
 export SUBARCH=arm64
-export KBUILD_COMPILER_STRING="$($KERNELDIR/prebuilts/proton-clang/bin/clang --version | head -n 1 | perl -pe 's/\(http.*?\)//gs' | sed -e 's/  */ /g' -e 's/[[:space:]]*$//')"
+export KBUILD_COMPILER_STRING="Clang Version 11.0.3"
 # Speed up build process
 MAKE="./makeparallel"
 
@@ -33,25 +35,23 @@ make $KERNEL_DEFCONFIG O=out
 make -j$(nproc --all) O=out \
                       ARCH=arm64 \
                       CC=clang \
-                      CROSS_COMPILE=aarch64-linux-gnu- \
-                      CROSS_COMPILE_ARM32=arm-linux-gnueabi- \
-                      NM=llvm-nm \
-                      OBJCOPY=llvm-objcopy \
-                      OBJDUMP=llvm-objdump \
-                      STRIP=llvm-strip
+                      CROSS_COMPILE=aarch64-linux-gnu-
 
-echo "**** Verify Image.gz-dtb ****"
+echo "**** Verify Image.gz-dtb & dtbo.img ****"
 ls $PWD/out/arch/arm64/boot/Image.gz-dtb
+ls $PWD/out/arch/arm64/boot/dtbo.img
 
-#Anykernel 2 time!!
+# Anykernel 3 time!!
 echo "**** Verifying AnyKernel3 Directory ****"
 ls $ANYKERNEL3_DIR
 echo "**** Removing leftovers ****"
 rm -rf $ANYKERNEL3_DIR/Image.gz-dtb
+rm -rf $ANYKERNEL3_DIR/dtbo.img
 rm -rf $ANYKERNEL3_DIR/$FINAL_KERNEL_ZIP
 
-echo "**** Copying Image.gz-dtb ****"
+echo "**** Copying Image.gz-dtb & dtbo.img ****"
 cp $PWD/out/arch/arm64/boot/Image.gz-dtb $ANYKERNEL3_DIR/
+cp $PWD/out/arch/arm64/boot/dtbo.img $ANYKERNEL3_DIR/
 
 echo "**** Time to zip up! ****"
 cd $ANYKERNEL3_DIR/
@@ -62,6 +62,7 @@ echo "**** Done, here is your sha1 ****"
 cd ..
 rm -rf $ANYKERNEL3_DIR/$FINAL_KERNEL_ZIP
 rm -rf $ANYKERNEL3_DIR/Image.gz-dtb
+rm -rf $ANYKERNEL3_DIR/dtbo.img
 rm -rf out/
 
 BUILD_END=$(date +"%s")
