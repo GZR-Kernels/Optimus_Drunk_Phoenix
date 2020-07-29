@@ -1,3 +1,2 @@
-* Rebased on sm6150/new crdroid kernel
-* Updated to 4.14.189
-* Boots on all roms again
+* Updated to 4.14.190
+* Built with proton-clang 20200725
