@@ -1,4 +1,2 @@
-* Updated to 4.14.189
-* Removed Schedtune & CPUSets Assist
-* Updated wireguard to 1.0.20200712
-* Enable KCAL Control
+* Back to old base, new base drains much more and feels less smooth
+* Still compatible with every rom except MIUI
