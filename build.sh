@@ -5,7 +5,7 @@
 ## Copy this script inside the kernel directory
 KERNEL_DEFCONFIG=phoenix_defconfig
 ANYKERNEL3_DIR=$PWD/AnyKernel3/
-FINAL_KERNEL_ZIP=Optimus_Drunk_Phoenix_v10.18.zip
+FINAL_KERNEL_ZIP=Optimus_Drunk_Phoenix_v10.19.zip
 export PATH="$KERNELDIR/prebuilts/clang-6607189/bin:${PATH}"
 export CROSS_COMPILE=$KERNELDIR/prebuilts/aarch64-linux-gnu/bin/aarch64-linux-gnu-
 export CROSS_COMPILE_ARM32=$KERNELDIR/prebuilts/arm-linux-gnueabi/bin/arm-linux-gnueabi-
