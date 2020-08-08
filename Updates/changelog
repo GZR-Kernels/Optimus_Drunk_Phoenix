@@ -1,3 +1,1 @@
-* Updated to 4.14.192
-* Removed Simple LMK
-* Use lzo-rle compression by default instead of lz4
+* Updated to 4.14.193
