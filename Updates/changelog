@@ -1,1 +1,2 @@
-* Updated to 4.14.193
+* Back to old base again, new base is still not working well.
+* This also means this is built with aosp clang 11.0.3 again

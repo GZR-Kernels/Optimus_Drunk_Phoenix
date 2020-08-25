@@ -5,7 +5,7 @@
 ## Copy this script inside the kernel directory
 KERNEL_DEFCONFIG=phoenix_defconfig
 ANYKERNEL3_DIR=$PWD/AnyKernel3/
-FINAL_KERNEL_ZIP=Optimus_Drunk_Phoenix_v10.21.zip
+FINAL_KERNEL_ZIP=Optimus_Drunk_Phoenix_v10.23.zip
 export PATH="$KERNELDIR/prebuilts/clang-6607189/bin:${PATH}"
 export CROSS_COMPILE=$KERNELDIR/prebuilts/aarch64-linux-android-4.9/bin/aarch64-linux-android-
 export CROSS_COMPILE_ARM32=$KERNELDIR/prebuilts/arm-linux-androideabi-4.9/bin/arm-linux-androideabi-
