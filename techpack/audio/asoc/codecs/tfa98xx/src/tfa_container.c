@@ -1819,10 +1819,6 @@ enum Tfa98xx_Error tfaContWriteProfile(struct tfa_device *tfa, int prof_idx, int
 				}
 				break;
 		}
-
-		if (err != Tfa98xx_Error_Ok) {
-				return err;
-		}
 	}
 
 	if ((prof->group != previous_prof->group || prof->group == 0) && (tfa->tfa_family == 2)) {
