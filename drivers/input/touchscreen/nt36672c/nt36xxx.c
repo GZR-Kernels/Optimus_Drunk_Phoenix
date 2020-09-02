@@ -1159,6 +1159,14 @@ static int32_t nvt_parse_dt(struct device *dev)
 			NVT_LOG("tp hw version: %u", config_info->display_maker);
 		}
 
+		ret = of_property_read_u32(temp, "novatek,panel-cg", &temp_val);
+		if (ret) {
+			NVT_LOG("Unable to read panel cg name\n");
+		} else {
+			config_info->panel_cg = (u8) temp_val;
+			NVT_LOG("cg_name: %s", config_info->panel_cg);
+		}
+
 		ret = of_property_read_string(temp, "novatek,fw-name",
 						 &config_info->nvt_fw_name);
 		if (ret && (ret != -EINVAL)) {
@@ -1206,9 +1214,8 @@ static int nvt_get_panel_type(struct nvt_ts_data *ts_data)
 	struct nvt_config_info *panel_list = ts->config_array;
 
 	for (i = 0; i < ts->config_array_size; i++) {
-		if (lockdown[0] == panel_list[i].tp_vendor &&
-			lockdown[1] == panel_list[i].display_maker) {
-			NVT_LOG("match panle type, fw is [%s], mp is [%s]",
+		if (lockdown[7] == panel_list[i].panel_cg) {
+			NVT_LOG("matched panel type, fw is [%s], mp is [%s]",
 				panel_list[i].nvt_fw_name, panel_list[i].nvt_mp_name);
 			break;
 		}
@@ -1237,6 +1244,7 @@ bool is_lockdown_empty(u8 *lockdown)
 
 	return ret;
 }
+
 void nvt_match_fw(void)
 {
 	NVT_LOG("start match fw name");
