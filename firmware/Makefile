@@ -14,7 +14,7 @@ fw-shipped-$(CONFIG_TOUCHSCREEN_GOODIX_GTX8) += goodix_gt9886_cfg_f10.bin goodix
 
 #fw-shipped-$(CONFIG_TOUCHSCREEN_NT36xxx_HOSTDL_SPI) += novatek_ts_fw.bin novatek_ts_mp.bin
 fw-shipped-$(CONFIG_TOUCHSCREEN_NT36xxx_HOSTDL_SPI) += novatek_nt36672c_g7b_fw01.bin novatek_nt36672c_g7b_mp01.bin
-#fw-shipped-$(CONFIG_TOUCHSCREEN_NT36xxx_HOSTDL_SPI) += novatek_nt36672c_g7b_fw02.bin novatek_nt36672c_g7b_mp02.bin
+fw-shipped-$(CONFIG_TOUCHSCREEN_NT36xxx_HOSTDL_SPI) += novatek_nt36672c_g7b_fw02.bin novatek_nt36672c_g7b_mp02.bin
 
 fw-shipped-$(CONFIG_TOUCHSCREEN_NT36xxx_HOSTDL_SPI) += novatek_ts_fw.bin
 
