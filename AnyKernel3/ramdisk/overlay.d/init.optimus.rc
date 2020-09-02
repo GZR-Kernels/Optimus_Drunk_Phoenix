@@ -11,8 +11,8 @@ on boot
     setprop ro.lmk.kill_timeout_ms 100
     setprop ro.lmk.use_minfree_levels true
     setprop ro.lmk.log_stats true
-  
-on property:sys.boot_completed=1  
+
+on property:vendor.post_boot.parsed=1  
 # Enable ZRAM on boot_complete
     rm /data/unencrypted/zram_swap
     swapon_all /vendor/etc/fstab.qcom
