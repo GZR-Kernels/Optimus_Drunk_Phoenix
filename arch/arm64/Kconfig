@@ -1554,8 +1554,6 @@ endif
 
 source "lib/Kconfig"
 
-source "techpack/Kconfig"
-
 menu "Xiaomi configuration options"
 
 config MACH_XIAOMI
