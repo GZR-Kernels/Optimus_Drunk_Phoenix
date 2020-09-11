@@ -1,2 +1,3 @@
-* Updated to 4.14.195
-* Fixed building with proton-clang
+* Rebased on sm6150-dev kernel
+* Fixed audio and slow charging
+* Added Shadow Call Stack
