@@ -1,3 +1,1 @@
-* Rebased on sm6150-dev kernel
-* Fixed audio and slow charging
-* Added Shadow Call Stack
+* Updated to 4.14.198 & proton-clang 20200913
