@@ -1,0 +1,81 @@
+From 833924352f6f7e537db4814e01530102b1409684 Mon Sep 17 00:00:00 2001
+From: GtrCraft <nickvanbokhorst@hotmail.com>
+Date: Tue, 25 Aug 2020 13:52:14 +0200
+Subject: [PATCH] phoenix: Hardcode refresh rate to 90hz
+
+* I rather have 90hz than 120hz
+* Little bit better power usage
+* Also change kernel name to see which version is flashed
+---
+ arch/arm64/configs/vendor/phoenix_defconfig |  2 +-
+ build.sh                                    |  2 +-
+ drivers/gpu/drm/msm/dsi-staging/dsi_panel.c | 23 +++------------------
+ 3 files changed, 5 insertions(+), 22 deletions(-)
+
+diff --git a/arch/arm64/configs/vendor/phoenix_defconfig b/arch/arm64/configs/vendor/phoenix_defconfig
+index 986a47345d96..c423ef833c10 100644
+--- a/arch/arm64/configs/vendor/phoenix_defconfig
++++ b/arch/arm64/configs/vendor/phoenix_defconfig
+@@ -47,7 +47,7 @@ CONFIG_THREAD_INFO_IN_TASK=y
+ CONFIG_INIT_ENV_ARG_LIMIT=32
+ CONFIG_CROSS_COMPILE=""
+ # CONFIG_COMPILE_TEST is not set
+-CONFIG_LOCALVERSION="-Optimus_Drunk_Phoenix_v10.30"
++CONFIG_LOCALVERSION="-Optimus_Drunk_Phoenix_v10.30_90hz"
+ # CONFIG_LOCALVERSION_AUTO is not set
+ CONFIG_DEFAULT_HOSTNAME="(none)"
+ CONFIG_SWAP=y
+diff --git a/build.sh b/build.sh
+index b817adef3af3..baa4ba100d4d 100644
+--- a/build.sh
++++ b/build.sh
+@@ -5,7 +5,7 @@
+ ## Copy this script inside the kernel directory
+ KERNEL_DEFCONFIG=vendor/phoenix_defconfig
+ ANYKERNEL3_DIR=$PWD/AnyKernel3/
+-FINAL_KERNEL_ZIP=Optimus_Drunk_Phoenix_v10.30.zip
++FINAL_KERNEL_ZIP=Optimus_Drunk_Phoenix_v10.30_90hz.zip
+ export PATH="$KERNELDIR/prebuilts/proton-clang/bin:${PATH}"
+ export ARCH=arm64
+ export SUBARCH=arm64
+diff --git a/drivers/gpu/drm/msm/dsi-staging/dsi_panel.c b/drivers/gpu/drm/msm/dsi-staging/dsi_panel.c
+index ba90df5ba5a3..1779a32db044 100644
+--- a/drivers/gpu/drm/msm/dsi-staging/dsi_panel.c
++++ b/drivers/gpu/drm/msm/dsi-staging/dsi_panel.c
+@@ -1627,30 +1627,13 @@ static int dsi_panel_parse_dfps_caps(struct dsi_panel *panel)
+ 		goto error;
+ 	}
+ 
+-	dfps_caps->dfps_list_len = utils->count_u32_elems(utils->data,
+-				  "qcom,dsi-supported-dfps-list");
+-	if (dfps_caps->dfps_list_len < 1) {
+-		pr_err("[%s] dfps refresh list not present\n", name);
+-		rc = -EINVAL;
+-		goto error;
+-	}
++	/* HACK: hardcode supported refresh rates */
++	dfps_caps->dfps_list_len = 1;
+ 
+ 	dfps_caps->dfps_list = kcalloc(dfps_caps->dfps_list_len, sizeof(u32),
+ 			GFP_KERNEL);
+-	if (!dfps_caps->dfps_list) {
+-		rc = -ENOMEM;
+-		goto error;
+-	}
+ 
+-	rc = utils->read_u32_array(utils->data,
+-			"qcom,dsi-supported-dfps-list",
+-			dfps_caps->dfps_list,
+-			dfps_caps->dfps_list_len);
+-	if (rc) {
+-		pr_err("[%s] dfps refresh rate list parse failed\n", name);
+-		rc = -EINVAL;
+-		goto error;
+-	}
++	dfps_caps->dfps_list[0] = 90;
+ 	dfps_caps->dfps_support = true;
+ 
+ 	/* calculate max and min fps */
+-- 
+2.25.1
+
