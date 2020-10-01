@@ -117,7 +117,7 @@
 #define CC_MODE_TAPER_DELTA_UA		200000
 #define DEFAULT_TAPER_DELTA_UA		100000
 #define CC_MODE_TAPER_MAIN_ICL_UA	500000
-#define USBIN_1700MA			1700000
+#define USBIN_1700MA		1700000
 
 #define smb1390_dbg(chip, reason, fmt, ...)				\
 	do {								\
@@ -206,10 +206,10 @@ struct smb1390 {
 	int			taper_entry_fv;
 	bool			switcher_enabled;
 	int			die_temp;
-	int			min_ilim_ua;
 	bool			suspended;
 	bool			disabled;
 	u32			debug_mask;
+	u32			min_ilim_ua;
 	u32			max_temp_alarm_degc;
 	u32			max_cutoff_soc;
 	u32			pl_output_mode;
@@ -667,6 +667,7 @@ unlock:
 
 	if (rc >= 0)
 		val->intval = smb1390_get_isns(temp);
+	pr_err("smb1390 isns value, isns = %d\n", val->intval);
 
 	return rc;
 }
@@ -1310,6 +1311,7 @@ static enum power_supply_property smb1390_charge_pump_props[] = {
 	POWER_SUPPLY_PROP_CP_IRQ_STATUS,
 	POWER_SUPPLY_PROP_CP_ILIM,
 	POWER_SUPPLY_PROP_CHIP_VERSION,
+	POWER_SUPPLY_PROP_MODEL_NAME,
 	POWER_SUPPLY_PROP_PARALLEL_OUTPUT_MODE,
 	POWER_SUPPLY_PROP_MIN_ICL,
 	POWER_SUPPLY_PROP_MODEL_NAME,

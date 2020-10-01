@@ -81,10 +81,8 @@ struct qg_dt {
 	bool			qg_sleep_config;
 	bool			qg_fast_chg_cfg;
 	bool			fvss_enable;
-	bool			multi_profile_load;
 	bool			tcss_enable;
-	bool			bass_enable;
-	bool			temp_battery_id;
+	bool                    temp_battery_id;
 	bool			qg_page0_unused;
 	bool			ffc_iterm_change_by_temp;
 };
@@ -100,7 +98,7 @@ struct qg_esr_data {
 
 #define BATT_MA_AVG_SAMPLES	8
 struct batt_params {
-	bool		update_now;
+	bool			update_now;
 	int			batt_raw_soc;
 	int			batt_soc;
 	int			samples_num;
@@ -119,12 +117,10 @@ struct qpnp_qg {
 	struct pmic_revid_data	*pmic_rev_id;
 	struct regmap		*regmap;
 	struct qpnp_vadc_chip	*vadc_dev;
-	struct soh_profile	*sp;
 	struct power_supply	*qg_psy;
 	struct class		*qg_class;
 	struct device		*qg_device;
 	struct cdev		qg_cdev;
-	struct device_node	*batt_node;
 	dev_t			dev_no;
 	struct batt_params	param;
 	struct delayed_work	soc_monitor_work;
@@ -133,6 +129,18 @@ struct qpnp_qg {
 	struct work_struct	scale_soc_work;
 	struct work_struct	qg_status_change_work;
 	struct delayed_work	qg_sleep_exit_work;
+#ifdef CONFIG_BATT_VERIFY_BY_DS28E16
+	struct delayed_work	battery_authentic_work;
+	int			battery_authentic_result;
+	struct delayed_work	ds_romid_work;
+	unsigned char		ds_romid[8];
+	struct delayed_work	ds_status_work;
+	unsigned char		ds_status[8];
+	struct delayed_work	ds_page0_work;
+	unsigned char		ds_page0[16];
+	struct delayed_work	profile_load_work;
+	bool				profile_judge_done;
+#endif
 	struct notifier_block	nb;
 	struct mutex		bus_lock;
 	struct mutex		data_lock;
@@ -153,6 +161,9 @@ struct qpnp_qg {
 	struct power_supply	*usb_psy;
 	struct power_supply	*dc_psy;
 	struct power_supply	*parallel_psy;
+#ifdef CONFIG_BATT_VERIFY_BY_DS28E16
+	struct power_supply *max_verify_psy;
+#endif
 	struct qg_esr_data	esr_data[QG_MAX_ESR_COUNT];
 
 	/* status variable */
@@ -172,7 +183,6 @@ struct qpnp_qg {
 	bool			force_soc;
 	bool			fvss_active;
 	bool			tcss_active;
-	bool			bass_active;
 	bool			fastcharge_mode_enabled;
 	int			charge_status;
 	int			charge_type;
@@ -189,8 +199,6 @@ struct qpnp_qg {
 	int			ibat_tcss_entry;
 	int			soc_tcss;
 	int			tcss_entry_count;
-	int			max_fcc_limit_ma;
-	int			bsoc_bass_entry;
 	u32			fifo_done_count;
 	u32			wa_flags;
 	u32			seq_no;
@@ -219,7 +227,6 @@ struct qpnp_qg {
 	int			sys_soc;
 	int			last_adj_ssoc;
 	int			recharge_soc;
-	int			batt_age_level;
 	struct alarm		alarm_timer;
 	u32			sdam_data[SDAM_MAX];
 
@@ -308,5 +315,4 @@ enum batt_temp_comp {
 	NTC_MID_COMP = 4,
 	NTC_HIGH_COMP = 6,
 };
-
 #endif /* __QG_CORE_H__ */

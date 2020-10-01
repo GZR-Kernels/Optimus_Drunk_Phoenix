@@ -13,11 +13,8 @@
 #ifndef __STEP_CHG_H__
 #define __STEP_CHG_H__
 
-#ifdef CONFIG_MACH_XIAOMI_SDMMAGPIE
 #define MAX_STEP_CHG_ENTRIES	5
-#else
-#define MAX_STEP_CHG_ENTRIES	8
-#endif
+
 #define BATT_CP_COOL_THRESHOLD		100
 #define BATT_CP_WARM_THRESHOLD		450
 
