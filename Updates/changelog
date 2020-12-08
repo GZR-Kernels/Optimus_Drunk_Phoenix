@@ -1,1 +1,3 @@
-* Updated to 4.14.210
+* Updated to 4.14.211
+* Disabled cpu input & devfreq boost
+* Removed spectrum for now (doesn't work on A11)
