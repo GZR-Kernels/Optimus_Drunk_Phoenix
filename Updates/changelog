@@ -1,4 +1,2 @@
-* Updated to 4.14.213
-* Updated wireguard to 1.0.20201221
-* Fixed lag on low battery
-* Added sdfat, exfat gave mount problems
+* Updated to 4.14.214
+* Updated sdfat
